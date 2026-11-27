@@ -1,0 +1,11 @@
+# 敏感資訊：原始信件、通知、表單、照片
+website-materials/
+.env
+.env.*
+.claude/settings.local.json
+
+# 自動產生的檔案（npm run build 可重新產生）
+site/
+node_modules/
+*.log
+.DS_Store

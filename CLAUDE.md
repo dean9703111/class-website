@@ -10,6 +10,8 @@
 - 產生網頁：`npm run build`
 - 即時預覽：`npm run preview`（http://localhost:5300）
 - 改完內容要執行 `npm run build`，確認沒有錯誤訊息
+- 發布：推送到 `master` 後，GitHub Actions（`.github/workflows/deploy.yml`）會自動產生網頁並發布到 GitHub Pages。推送等於公開上線，使用者要求才推送
+- `site/` 不納入 Git
 - 不使用外部套件。需要安裝任何工具時，先說明用途，使用者同意才裝
 
 ## 公開網站的限制

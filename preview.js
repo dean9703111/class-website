@@ -23,7 +23,7 @@ function rebuild() {
 }
 
 let timer;
-for (const dir of ["content", "src"]) {
+for (const dir of ["content", "content/files", "src"]) {
   fs.watch(path.join(__dirname, dir), () => { clearTimeout(timer); timer = setTimeout(rebuild, 150); });
 }
 rebuild();
@@ -35,6 +35,14 @@ http.createServer((req, res) => {
     clients.add(res);
     req.on("close", () => clients.delete(res));
     return;
+  }
+  if (req.url.startsWith("/files/")) {
+    // 只取檔名，避免讀到其他資料夾
+    const name = path.basename(decodeURIComponent(req.url.split("?")[0]));
+    const file = path.join(__dirname, "site", "files", name);
+    if (!fs.existsSync(file)) { res.writeHead(404); return res.end(); }
+    res.writeHead(200, { "Content-Type": name.endsWith(".pdf") ? "application/pdf" : "application/octet-stream" });
+    return res.end(fs.readFileSync(file));
   }
   res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
   res.end(page);

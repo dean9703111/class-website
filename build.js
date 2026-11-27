@@ -6,7 +6,12 @@ const root = __dirname;
 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const inline = s => esc(s)
   .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-  .replace(/\[(.+?)\]\(((?:https?:|tel:)[^)\s]+)\)/g, '<a href="$2">$1</a>');
+  .replace(/\[(.+?)\]\(((?:https?:|tel:|files\/)[^)\s]+)\)/g, (_, text, url) => {
+    if (!url.startsWith("files/")) return `<a href="${url}">${text}</a>`;
+    // 附件：檔案要放在 content/files/，點了直接下載
+    if (!fs.existsSync(path.join(root, "content", url))) fail("index.md", 0, `找不到附件 content/${url}`);
+    return `<a href="${url}" download>${text}</a>`;
+  });
 
 function fail(file, line, message) {
   throw new Error(`content/${file}${line ? ` 第 ${line} 行` : ""}：${message}`);
@@ -190,6 +195,8 @@ function build() {
     .replace(/\{\{(\w+)\}\}/g, (_, key) => data[key] ?? fail("", 0, `樣板欄位 ${key} 沒有內容`));
   fs.mkdirSync(path.join(root, "site"), { recursive: true });
   fs.writeFileSync(path.join(root, "site", "index.html"), html);
+  const files = path.join(root, "content", "files");
+  if (fs.existsSync(files)) fs.cpSync(files, path.join(root, "site", "files"), { recursive: true });
   return html;
 }
 
